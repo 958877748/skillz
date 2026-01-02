@@ -51,7 +51,7 @@ export function parseArgs(argv?: string[]): CliArgs {
     .name("skillz")
     .description("MCP server that exposes Claude-style skills to any MCP client")
     .version(getVersion())
-    .argument("[skills_root]", "Directory containing skill folders", "~/.skillz")
+    .argument("[skills_root]", "Directory containing skill folders", "./.skillz")
     .option(
       "--transport <transport>",
       "Transport to use when running the server",
@@ -67,7 +67,7 @@ export function parseArgs(argv?: string[]): CliArgs {
   program.parse(argv);
 
   const options = program.opts();
-  const skillsRoot = program.args[0] || "~/.skillz";
+  const skillsRoot = program.args[0] || "./.skillz";
 
   return {
     skillsRoot: resolveHome(skillsRoot),

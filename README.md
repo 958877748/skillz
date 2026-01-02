@@ -24,7 +24,7 @@ To run the MCP server in your agent, use the following config (or equivalent):
 }
 ```
 
-with the skills residing at `~/.skillz`
+with the skills residing at `./.skillz` (in your project directory)
 
 _or_
 
@@ -41,9 +41,7 @@ or Docker
 
 You can run Skillz using Docker for isolation. The image is available on Docker Hub at `intellectronica/skillz`.
 
-To run the Skillz MCP server with your skills directory mounted using Docker, configure your agent as follows: 
-
-Replace `/path/to/skills` with the path to your actual skills directory. Any arguments after `intellectronica/skillz` in the array are passed directly to the Skillz CLI.
+To run the Skillz MCP server with your project directory mounted using Docker, configure your agent as follows:
 
 ```json
 {
@@ -54,13 +52,15 @@ Replace `/path/to/skills` with the path to your actual skills directory. Any arg
       "-i",
       "--rm",
       "-v",
-      "/path/to/skills:/home/skillz/.skillz",
+      "${workspaceFolder}:/workspace",
       "intellectronica/skillz",
-      "/home/skillz/.skillz"
+      "/workspace/.skillz"
     ]
   }
 }
 ```
+
+This mounts your project directory and uses the `.skillz` subdirectory within it.
 
 ## Gemini CLI Extension
 
@@ -89,24 +89,44 @@ npx skillz
 ## Usage
 
 Skillz looks for skills inside the root directory you provide (defaults to
-`~/.skillz`). Each skill lives in its own folder or zip archive (`.zip` or `.skill`)
+`./.skillz` in your current project). Each skill lives in its own folder or zip archive (`.zip` or `.skill`)
 that includes a `SKILL.md` file with YAML front matter describing the skill. Any
 other files in the skill become downloadable resources for your agent (scripts,
 datasets, examples, etc.).
 
-An example directory might look like this:
+### Project Structure
+
+We recommend managing skills as part of your project using git submodules:
+
+```bash
+# Add a skills repository as a submodule
+git submodule add https://github.com/your-org/project-skills .skillz
+git submodule update --init --recursive
+```
+
+An example project directory might look like this:
 
 ```text
-~/.skillz/
-├── summarize-docs/
-│   ├── SKILL.md
-│   ├── summarize.py
-│   └── prompts/example.txt
-├── translate.zip
-├── analyzer.skill
-└── web-search/
-    └── SKILL.md
+my-project/
+├── .skillz/                    # Skills directory (git submodule)
+│   ├── summarize-docs/
+│   │   ├── SKILL.md
+│   │   ├── summarize.py
+│   │   └── prompts/example.txt
+│   ├── translate.zip
+│   ├── analyzer.skill
+│   └── web-search/
+│       └── SKILL.md
+├── src/
+├── package.json
+└── README.md
 ```
+
+This approach ensures that:
+- Skills are version-controlled with your project
+- Team members get the same skills when they clone the repository
+- Different projects can have different skill sets
+- Skills are easily shareable and reproducible
 
 When packaging skills as zip archives (`.zip` or `.skill`), include the `SKILL.md`
 either at the root of the archive or inside a single top-level directory:
@@ -189,7 +209,7 @@ npm run format
 
 | Flag / Option | Description |
 | --- | --- |
-| positional `skills_root` | Optional skills directory (defaults to `~/.skillz`). |
+| positional `skills_root` | Optional skills directory (defaults to `./.skillz` in current project). |
 | `--transport {stdio,http,sse}` | Choose the FastMCP transport (default `stdio`). |
 | `--host HOST` | Bind address for HTTP/SSE transports. |
 | `--port PORT` | Port for HTTP/SSE transports. |
@@ -197,6 +217,37 @@ npm run format
 | `--list-skills` | List discovered skills and exit. |
 | `--verbose` | Emit debug logging to the console. |
 | `--log` | Mirror verbose logs to `/tmp/skillz.log`. |
+
+## Git Submodule Workflow
+
+Here's a recommended workflow for managing skills with git submodules:
+
+```bash
+# 1. Create a central skills repository (if you don't have one)
+git init my-project-skills
+cd my-project-skills
+mkdir summarize-docs translate-text
+# ... add SKILL.md files to each skill directory ...
+git add . && git commit -m "Initial skills"
+git remote add origin https://github.com/your-org/my-project-skills.git
+git push -u origin main
+
+# 2. Add skills as a submodule to your project
+cd my-project
+git submodule add https://github.com/your-org/my-project-skills.git .skillz
+git submodule update --init --recursive
+
+# 3. Commit the submodule reference
+git add .skillz .gitmodules
+git commit -m "Add skills submodule"
+
+# 4. Update skills later
+cd .skillz
+git pull origin main
+cd ..
+git add .skillz
+git commit -m "Update skills to latest version"
+```
 
 ---
 

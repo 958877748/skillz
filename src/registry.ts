@@ -48,7 +48,12 @@ export class SkillRegistry {
   public async load(): Promise<void> {
     if (!existsSync(this.root) || !isDirectory(this.root)) {
       throw new SkillError(
-        `Skills root ${this.root} does not exist or is not a directory.`
+        `Skills root ${this.root} does not exist or is not a directory.\n\n` +
+        `To get started:\n` +
+        `1. Create the skills directory: mkdir -p ${this.root}\n` +
+        `2. Add a skill: Create ${this.root}/your-skill/SKILL.md\n` +
+        `3. Or use git submodule: git submodule add <repo> ${this.root}\n\n` +
+        `See README.md for more information.`
       );
     }
 
