@@ -2,8 +2,8 @@
 
 ## 👌 **Use _skills_ in any agent** _(Codex, Copilot, Cursor, etc...)_
 
-[![PyPI version](https://img.shields.io/pypi/v/skillz.svg)](https://pypi.org/project/skillz/)
-[![PyPI downloads](https://img.shields.io/pypi/dm/skillz.svg)](https://pypi.org/project/skillz/)
+[![npm version](https://img.shields.io/npm/v/skillz.svg)](https://www.npmjs.com/package/skillz)
+[![npm downloads](https://img.shields.io/npm/dm/skillz.svg)](https://www.npmjs.com/package/skillz)
 
 > ⚠️ **Experimental proof‑of‑concept. Potentially unsafe. Treat skills like untrusted code and run in sandboxes/containers. Use at your own risk.**
 
@@ -18,7 +18,7 @@ To run the MCP server in your agent, use the following config (or equivalent):
 ```json
 {
   "skillz": {
-    "command": "uvx",
+    "command": "npx",
     "args": ["skillz@latest"]
   }
 }
@@ -31,8 +31,8 @@ _or_
 ```json
 {
   "skillz": {
-    "command": "uvx",
-    "args": ["skillz@latest", "/path/to/skills/direcotry"]
+    "command": "npx",
+    "args": ["skillz@latest", "/path/to/skills/directory"]
   }
 }
 ```
@@ -54,9 +54,9 @@ Replace `/path/to/skills` with the path to your actual skills directory. Any arg
       "-i",
       "--rm",
       "-v",
-      "/path/to/skills:/skillz",
+      "/path/to/skills:/home/skillz/.skillz",
       "intellectronica/skillz",
-      "/skillz"
+      "/home/skillz/.skillz"
     ]
   }
 }
@@ -73,6 +73,18 @@ gemini extensions install https://github.com/intellectronica/gemini-cli-skillz
 ```
 
 This extension enables Anthropic-style Agent Skills in Gemini CLI using the skillz MCP server.
+
+## Installation
+
+```bash
+npm install -g skillz
+```
+
+Or using npx:
+
+```bash
+npx skillz
+```
 
 ## Usage
 
@@ -148,6 +160,28 @@ skills/
 You can use `skillz --list-skills` (optionally pointing at another skills root)
 to verify which skills the server will expose before connecting it to your
 agent.
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Build the project
+npm run build
+
+# Run in development mode
+npm run dev
+
+# Run tests
+npm test
+
+# Lint the code
+npm run lint
+
+# Format the code
+npm run format
+```
 
 ## CLI Reference
 

@@ -1,34 +1,40 @@
 # syntax=docker/dockerfile:1
-FROM python:3.12-slim-bookworm AS base
+FROM node:20-slim AS base
 
 FROM base AS builder
 
-COPY --from=ghcr.io/astral-sh/uv:0.4.9 /uv /bin/uv
-
-ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
-
 WORKDIR /app
 
-COPY uv.lock pyproject.toml /app/
+# Copy package files
+COPY package*.json ./
 
-RUN --mount=type=cache,target=/root/.cache/uv \
-  uv sync --frozen --no-install-project --no-dev
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
 
-COPY . /app
+# Copy source code
+COPY . .
 
-RUN --mount=type=cache,target=/root/.cache/uv \
-  uv sync --frozen --no-dev
+# Build the project
+RUN npm run build
 
 FROM base
 
-COPY --from=builder /app /app
+WORKDIR /app
 
-ENV PATH="/app/.venv/bin:$PATH"
+# Copy built application from builder
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+
+# Install only production dependencies
+RUN npm ci --only=production && npm cache clean --force
 
 # Create non-root user
 RUN groupadd -r skillz && useradd --no-log-init -r -g skillz skillz
 
-# Change ownership to non-root user
+# Create skills directory
+RUN mkdir -p /home/skillz/.skillz && chown -R skillz:skillz /home/skillz
+
+# Change ownership
 RUN chown -R skillz:skillz /app
 
 # Switch to non-root user
@@ -38,5 +44,5 @@ USER skillz
 EXPOSE 8000
 
 # Run the Skillz MCP server, allow arguments to be passed at runtime
-ENTRYPOINT ["python", "-m", "skillz"]
+ENTRYPOINT ["node", "dist/cli.js"]
 # No CMD, so arguments can be passed via docker run
