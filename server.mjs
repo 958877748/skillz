@@ -111,10 +111,6 @@ server.addTool({
 });
 
 server.start({
-  transportType: "httpStream",
-  httpStream: {
-    endpoint: "/mcp",
-    port: 8080,
-  },
+  transportType: "stdio",
 });
 console.log("Skillz MCP Server started");
