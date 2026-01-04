@@ -82,8 +82,7 @@ const server = new FastMCP({
 server.addTool({
   name: "listSkill",
   description: "List all available skills in current directory with their names and descriptions",
-  parameters: {},
-  handler: async () => {
+  execute: async () => {
     const skills = scanCurrentDirectory();
 
     if (skills.length === 0) {

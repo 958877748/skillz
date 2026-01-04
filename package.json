@@ -4,6 +4,7 @@
   "description": "MCP server that exposes Claude-style skills to any MCP client.",
   "main": "mcp.js",
   "dependencies": {
-    "fastmcp": "^1.27.7"
+    "fastmcp": "^1.27.7",
+    "zod": "^4.3.4"
   }
 }
